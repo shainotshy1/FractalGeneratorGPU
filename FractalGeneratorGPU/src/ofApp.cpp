@@ -11,7 +11,7 @@ void ofApp::setup() {
 	cuda_status_ = cudaSetDevice(0);
 	GPU_ENABLED = cuda_status_ == cudaSuccess;
 
-	double scale = 0.9;
+	double scale = 0.95;
 	int w = ofGetScreenHeight() * scale;
 	int h = ofGetScreenHeight() * scale;
 	ofSetWindowShape(w, h);

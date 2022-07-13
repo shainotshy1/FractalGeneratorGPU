@@ -23,13 +23,23 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	glm::vec3 min_val(-3, -3, -3);
 	glm::vec3 max_val(3, 3, 3);
 
-	int w = 750;
-	int h = 100;
+	int w = 400;
+	int h = 50;
 
-	gui_.setup();
-	gui_.add(red_slider_.setup("Red", default_val.x, min_val.x, max_val.x, w, h));
-	gui_.add(green_slider_.setup("Green", default_val.y, min_val.y, max_val.y, w, h));
-	gui_.add(blue_slider_.setup("Blue", default_val.z, min_val.z, max_val.z, w, h));
+	red_slider_.setup("Red", default_val.x, min_val.x, max_val.x, w, h);
+	green_slider_.setup("Green", default_val.y, min_val.y, max_val.y, w, h);
+	blue_slider_.setup("Blue", default_val.z, min_val.z, max_val.z, w, h);
+
+	red_slider_.setFillColor(ofColor(150, 50, 50));
+	green_slider_.setFillColor(ofColor(50, 150, 50));
+	blue_slider_.setFillColor(ofColor(50, 50, 150));
+
+	ofColor background(255, 255, 255);
+	red_slider_.setBackgroundColor(background);
+	green_slider_.setBackgroundColor(background);
+	blue_slider_.setBackgroundColor(background);
+
+	red_slider_.setDefaultTextPadding(10);
 
 	zoom_scale0_ = 1;
 	x_shift_ = 0.0;
@@ -95,12 +105,28 @@ void FractalGenerator::display()
 {
 	drawFractal();
 	displayInfo();
-	gui_.draw();
+	displaySliders();
 }
+
 
 void FractalGenerator::drawFractal() const
 {
 	img_.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+}
+
+void FractalGenerator::displaySliders()
+{
+	int w = red_slider_.getWidth();
+	int h = red_slider_.getHeight();
+	int slider_dist = 25;
+
+	glm::vec2 pos(ofGetWindowWidth() - 100 - w, 200 - h);
+	red_slider_.setPosition(pos.x, pos.y);
+	green_slider_.setPosition(pos.x, pos.y + slider_dist + h);
+	blue_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 2);
+	red_slider_.draw();
+	green_slider_.draw();
+	blue_slider_.draw();
 }
 
 void FractalGenerator::displayInfo() const

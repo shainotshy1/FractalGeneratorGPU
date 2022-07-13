@@ -43,7 +43,6 @@ private:
 	ofxFloatSlider red_slider_;
 	ofxFloatSlider green_slider_;
 	ofxFloatSlider blue_slider_;
-	ofxPanel gui_;
 
 public:
 	//constructor
@@ -65,6 +64,7 @@ public:
 	void shift(const glm::vec2 dir);
 	void display();
 	void drawFractal() const;
+	void displaySliders();
 	void displayInfo() const;
 	void setPixelColor(const int i, const int j, const ofColor clr);
 	void setBackground(const ofColor clr);
