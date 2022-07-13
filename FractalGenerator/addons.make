@@ -1,0 +1,4 @@
+ofxGui
+ofxSvg
+ofxThreadedImageLoader
+ofxVectorGraphics
