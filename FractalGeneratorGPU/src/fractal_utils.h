@@ -12,3 +12,7 @@ void gpuIterateColors(double pan_x,
 	glm::vec3 clr,
 	glm::vec3 clr_enhance,
 	double* pixels_clr_d);
+
+glm::vec3 calculateColors(double val,
+	glm::vec3 clr_enhance,
+	glm::vec3 clr_scale);

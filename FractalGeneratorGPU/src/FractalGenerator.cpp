@@ -313,9 +313,9 @@ void FractalGenerator::cpuIterateColors(ofPixels& pixels,
 			}
 		}
 
-		float r = 255 * pow(val, clr_enhance.x) * clr.x;
-		float g = 255 * pow(val, clr_enhance.y) * clr.y;
-		float b = 255 * pow(val, clr_enhance.z) * clr.z;
+		float r = 255 * pow(val, clr_enhance.y) * clr.x;
+		float g = 255 * pow(val, clr_enhance.z) * clr.y;
+		float b = 255 * pow(val, clr_enhance.x) * clr.z;
 		float a = 255;
 
 		ofColor clr = ofColor(r, g, b, a);

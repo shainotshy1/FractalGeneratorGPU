@@ -72,9 +72,9 @@ __global__ void gpuIterateColorsKernel(double* pixels_clr,
 		}
 	}
 
-	double r = 255 * pow(val, clr_enhance.x) * clr_scale.x;
-	double g = 255 * pow(val, clr_enhance.y) * clr_scale.y;
-	double b = 255 * pow(val, clr_enhance.z) * clr_scale.z;
+	double r = 255 * pow(val, clr_enhance.y) * clr_scale.x;
+	double g = 255 * pow(val, clr_enhance.z) * clr_scale.y;
+	double b = 255 * pow(val, clr_enhance.x) * clr_scale.z;
 	int pixels_i = i * 3;
 
 	pixels_clr[pixels_i] = r;
