@@ -96,11 +96,11 @@ void FractalGenerator::displayInfo() const
 
 	string gpu_enabled = gpu_enabled_ ? "Yes" : "No";
 
-	string scale_str = "Mag: "       + ofToString(scale_, precision) + " x";
-	string coord_str = "Coord: "     + ofToString(pan_x_, precision) + " + "
-		                             + ofToString(pan_y_, precision) + " i";
-	string it_str = "Iterations: "   + ofToString(max_it_);
-	string fps_str = "FPS: "         + ofToString(ofGetFrameRate(), 2);
+	string scale_str = "Mag: " + ofToString(scale_, precision) + " x";
+	string coord_str = "Coord: " + ofToString(pan_x_, precision) + " + "
+		+ ofToString(pan_y_, precision) + " i";
+	string it_str = "Iterations: " + ofToString(max_it_);
+	string fps_str = "FPS: " + ofToString(ofGetFrameRate(), 2);
 	string gpu_str = "GPU Enabled: " + ofToString(gpu_enabled);
 
 	vector<string> info{

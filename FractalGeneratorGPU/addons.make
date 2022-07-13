@@ -1,4 +1,3 @@
 ofxGui
-ofxSvg
 ofxThreadedImageLoader
 ofxVectorGraphics
