@@ -19,12 +19,24 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	zoom_scale_(zoom_scale),
 	shift_speed_(shift_speed)
 {
+	glm::vec3 default_val(1, 1, 1);
+	glm::vec3 min_val(-3, -3, -3);
+	glm::vec3 max_val(3, 3, 3);
+
+	int w = 750;
+	int h = 100;
+
+	gui_.setup();
+	gui_.add(red_slider_.setup("Red", default_val.x, min_val.x, max_val.x, w, h));
+	gui_.add(green_slider_.setup("Green", default_val.y, min_val.y, max_val.y, w, h));
+	gui_.add(blue_slider_.setup("Blue", default_val.z, min_val.z, max_val.z, w, h));
+
 	zoom_scale0_ = 1;
 	x_shift_ = 0.0;
 	y_shift_ = 0.0;
 
 	clr_ = glm::vec3(1, 1, 1);
-	clr_enhance_ = glm::vec3(2, 3, 1);
+	clr_enhance_ = default_val;
 	font1_size_ = 30;
 	font1_.load("font1.ttf", font1_size_);
 
@@ -44,6 +56,8 @@ FractalGenerator::~FractalGenerator()
 
 void FractalGenerator::run()
 {
+	clr_enhance_ = glm::vec3((float)red_slider_, (float)green_slider_, (float)blue_slider_);
+
 	pan_x_ = 2.5 / scale_ + x_shift_;
 	pan_y_ = 2 / scale_ + y_shift_;
 
@@ -77,10 +91,11 @@ void FractalGenerator::shift(const glm::vec2 dir)
 	y_shift_ += dir.y * ((shift_speed_ + shift * shift) / scale_);
 }
 
-void FractalGenerator::display() const
+void FractalGenerator::display()
 {
 	drawFractal();
 	displayInfo();
+	gui_.draw();
 }
 
 void FractalGenerator::drawFractal() const
