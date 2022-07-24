@@ -4,6 +4,7 @@
 #include "ofTexture.h"
 #include "ofPixels.h"
 #include "ofColor.h"
+#include "ofxGui.h"
 
 class FractalGenerator
 {
@@ -30,6 +31,7 @@ private:
 
 	bool gpu_enabled_;
 	int num_threads_;
+	int iter_multiplier_;
 
 	glm::vec3 clr_;
 	glm::vec3 clr_enhance_;
@@ -38,6 +40,13 @@ private:
 
 	int font1_size_;
 	ofTrueTypeFont font1_;
+	
+	ofxFloatSlider red_slider_;
+	ofxFloatSlider green_slider_;
+	ofxFloatSlider blue_slider_;
+
+	ofxIntSlider qual_slider_;
+	ofxIntSlider iter_slider_;
 
 public:
 	//constructor
@@ -57,8 +66,9 @@ public:
 	void run();
 	void zoom(int dir);
 	void shift(const glm::vec2 dir);
-	void display() const;
+	void display();
 	void drawFractal() const;
+	void displaySliders();
 	void displayInfo() const;
 	void setPixelColor(const int i, const int j, const ofColor clr);
 	void setBackground(const ofColor clr);
