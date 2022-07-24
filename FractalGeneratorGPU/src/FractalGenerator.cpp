@@ -25,26 +25,47 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 	int w = 400;
 	int h = 50;
-	iter_multiplier_ = 1;
+	iter_multiplier_ = 2;
 
 	red_slider_.setup("Red", default_val.x, min_val.x, max_val.x, w, h);
 	green_slider_.setup("Green", default_val.y, min_val.y, max_val.y, w, h);
 	blue_slider_.setup("Blue", default_val.z, min_val.z, max_val.z, w, h);
 	qual_slider_.setup("Quality", quality_, 100, 2500, w, h);
-	iter_slider_.setup("Iterations", iter_multiplier_, 1, 10, w, h);
+	iter_slider_.setup("Iterations", iter_multiplier_, 0, 10, w, h);
+	
+	color_filter_.setup("Color Filter", 255, 0, 255, w / 2, h);
+	color_filter_.setDefaultHeight(h);
+	color_filter_.setDefaultWidth(w / 2);
+
+	color_enhancer_.setup("Color Contrast", 255, 0, 255, w / 2, h);
+	color_enhancer_.setDefaultHeight(h);
+	color_enhancer_.setDefaultWidth(w / 2);
+
+	font1_size_ = 30;
+	red_slider_.loadFont("font1.ttf", font1_size_);
+	green_slider_.loadFont("font1.ttf", font1_size_);
+	blue_slider_.loadFont("font1.ttf", font1_size_);
+	qual_slider_.loadFont("font1.ttf", font1_size_);
+	iter_slider_.loadFont("font1.ttf", font1_size_);
+	color_filter_.loadFont("font1.ttf", 20);
+	color_enhancer_.loadFont("font1.ttf", 20);
 
 	red_slider_.setFillColor(ofColor(150, 50, 50));
 	green_slider_.setFillColor(ofColor(50, 150, 50));
 	blue_slider_.setFillColor(ofColor(50, 50, 150));
 	qual_slider_.setFillColor(ofColor(50, 50, 50));
 	iter_slider_.setFillColor(ofColor(50, 50, 50));
+	color_filter_.setFillColor(ofColor(50, 50, 50));
+	color_enhancer_.setFillColor(ofColor(50, 50, 50));
 
-	ofColor background(255, 255, 255);
+	ofColor background(150,150,150);
 	red_slider_.setBackgroundColor(background);
 	green_slider_.setBackgroundColor(background);
 	blue_slider_.setBackgroundColor(background);
 	qual_slider_.setBackgroundColor(background);
 	iter_slider_.setBackgroundColor(background);
+	color_filter_.setBackgroundColor(background);
+	color_enhancer_.setBackgroundColor(background);
 
 	red_slider_.setDefaultTextPadding(10);
 
@@ -54,7 +75,6 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 	clr_ = glm::vec3(1, 1, 1);
 	clr_enhance_ = default_val;
-	font1_size_ = 30;
 	font1_.load("font1.ttf", font1_size_);
 
 	num_threads_ = num_threads;
@@ -81,8 +101,11 @@ void FractalGenerator::run()
 		setQuality((double)qual_slider_);
 	}
 
+	ofColor clr_picked = (ofColor)color_filter_;
+	clr_ = glm::vec3(clr_picked.r / 255.0, clr_picked.g / 255.0, clr_picked.b / 255.0);
+
 	clr_enhance_ = glm::vec3((double)red_slider_, (double)green_slider_, (double)blue_slider_);
-	iter_multiplier_ = (int)iter_slider_;
+	iter_multiplier_ = (double)iter_slider_;
 
 	pan_x_ = 2.5 / scale_ + x_shift_;
 	pan_y_ = 2 / scale_ + y_shift_;
@@ -121,7 +144,7 @@ void FractalGenerator::display()
 {
 	drawFractal();
 	displayInfo();
-	displaySliders();
+	displayGUI();
 }
 
 
@@ -130,24 +153,31 @@ void FractalGenerator::drawFractal() const
 	img_.draw(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 }
 
-void FractalGenerator::displaySliders()
+void FractalGenerator::displayGUI()
 {
 	int w = red_slider_.getWidth();
 	int h = red_slider_.getHeight();
 	int slider_dist = 25;
 
 	glm::vec2 pos(ofGetWindowWidth() - 100 - w, 200 - h);
-	red_slider_.setPosition(pos.x, pos.y);
-	green_slider_.setPosition(pos.x, pos.y + slider_dist + h);
-	blue_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 2);
-	qual_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 4);
-	iter_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 5);
+
+	qual_slider_.setPosition(pos.x, pos.y);
+	iter_slider_.setPosition(pos.x, pos.y + (slider_dist + h));
+
+	red_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 3);
+	green_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 4);
+	blue_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 5);
+	color_filter_.setPosition(pos.x, pos.y + (slider_dist + h) * 7);
+	color_enhancer_.setPosition(pos.x + w / 2, pos.y + (slider_dist + h) * 7);
 
 	red_slider_.draw();
 	green_slider_.draw();
 	blue_slider_.draw();
 	qual_slider_.draw();
 	iter_slider_.draw();
+
+	color_filter_.draw();
+	color_enhancer_.draw();
 }
 
 void FractalGenerator::displayInfo() const

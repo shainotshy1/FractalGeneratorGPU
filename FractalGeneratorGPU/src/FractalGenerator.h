@@ -31,7 +31,7 @@ private:
 
 	bool gpu_enabled_;
 	int num_threads_;
-	int iter_multiplier_;
+	double iter_multiplier_;
 
 	glm::vec3 clr_;
 	glm::vec3 clr_enhance_;
@@ -46,7 +46,10 @@ private:
 	ofxFloatSlider blue_slider_;
 
 	ofxIntSlider qual_slider_;
-	ofxIntSlider iter_slider_;
+	ofxFloatSlider iter_slider_;
+
+	ofxColorSlider color_filter_;
+	ofxColorSlider color_enhancer_;
 
 public:
 	//constructor
@@ -68,7 +71,7 @@ public:
 	void shift(const glm::vec2 dir);
 	void display();
 	void drawFractal() const;
-	void displaySliders();
+	void displayGUI();
 	void displayInfo() const;
 	void setPixelColor(const int i, const int j, const ofColor clr);
 	void setBackground(const ofColor clr);
