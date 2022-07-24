@@ -31,6 +31,7 @@ private:
 
 	bool gpu_enabled_;
 	int num_threads_;
+	int iter_multiplier_;
 
 	glm::vec3 clr_;
 	glm::vec3 clr_enhance_;
@@ -43,6 +44,9 @@ private:
 	ofxFloatSlider red_slider_;
 	ofxFloatSlider green_slider_;
 	ofxFloatSlider blue_slider_;
+
+	ofxIntSlider qual_slider_;
+	ofxIntSlider iter_slider_;
 
 public:
 	//constructor

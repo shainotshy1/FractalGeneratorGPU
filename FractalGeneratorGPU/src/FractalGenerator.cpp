@@ -25,19 +25,26 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 	int w = 400;
 	int h = 50;
+	iter_multiplier_ = 1;
 
 	red_slider_.setup("Red", default_val.x, min_val.x, max_val.x, w, h);
 	green_slider_.setup("Green", default_val.y, min_val.y, max_val.y, w, h);
 	blue_slider_.setup("Blue", default_val.z, min_val.z, max_val.z, w, h);
+	qual_slider_.setup("Quality", quality_, 100, 2500, w, h);
+	iter_slider_.setup("Iterations", iter_multiplier_, 1, 10, w, h);
 
 	red_slider_.setFillColor(ofColor(150, 50, 50));
 	green_slider_.setFillColor(ofColor(50, 150, 50));
 	blue_slider_.setFillColor(ofColor(50, 50, 150));
+	qual_slider_.setFillColor(ofColor(50, 50, 50));
+	iter_slider_.setFillColor(ofColor(50, 50, 50));
 
 	ofColor background(255, 255, 255);
 	red_slider_.setBackgroundColor(background);
 	green_slider_.setBackgroundColor(background);
 	blue_slider_.setBackgroundColor(background);
+	qual_slider_.setBackgroundColor(background);
+	iter_slider_.setBackgroundColor(background);
 
 	red_slider_.setDefaultTextPadding(10);
 
@@ -66,7 +73,16 @@ FractalGenerator::~FractalGenerator()
 
 void FractalGenerator::run()
 {
-	clr_enhance_ = glm::vec3((float)red_slider_, (float)green_slider_, (float)blue_slider_);
+	if ((double)qual_slider_ != quality_) {
+		if (gpu_enabled_) {
+			free(pixels_clr_h_);
+			deleteOnDevice(pixels_clr_d_);
+		}
+		setQuality((double)qual_slider_);
+	}
+
+	clr_enhance_ = glm::vec3((double)red_slider_, (double)green_slider_, (double)blue_slider_);
+	iter_multiplier_ = (int)iter_slider_;
 
 	pan_x_ = 2.5 / scale_ + x_shift_;
 	pan_y_ = 2 / scale_ + y_shift_;
@@ -124,9 +140,14 @@ void FractalGenerator::displaySliders()
 	red_slider_.setPosition(pos.x, pos.y);
 	green_slider_.setPosition(pos.x, pos.y + slider_dist + h);
 	blue_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 2);
+	qual_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 4);
+	iter_slider_.setPosition(pos.x, pos.y + (slider_dist + h) * 5);
+
 	red_slider_.draw();
 	green_slider_.draw();
 	blue_slider_.draw();
+	qual_slider_.draw();
+	iter_slider_.draw();
 }
 
 void FractalGenerator::displayInfo() const
@@ -140,7 +161,7 @@ void FractalGenerator::displayInfo() const
 	string scale_str = "Mag: " + ofToString(scale_, precision) + " x";
 	string coord_str = "Coord: " + ofToString(pan_x_, precision) + " + "
 		+ ofToString(pan_y_, precision) + " i";
-	string it_str = "Iterations: " + ofToString(max_it_);
+	string it_str = "Iterations: " + ofToString(max_it_*iter_multiplier_);
 	string fps_str = "FPS: " + ofToString(ofGetFrameRate(), 2);
 	string gpu_str = "GPU Enabled: " + ofToString(gpu_enabled);
 
@@ -174,12 +195,14 @@ void FractalGenerator::generateFractal()
 	std::vector<std::thread> threads;
 	ofPixels pixels = img_.getPixels();
 
+	int max_it = max_it_ * iter_multiplier_;
+
 	if (gpu_enabled_) {
 		gpuIterateColors(pan_x_,
 			pan_y_,
 			num_pixels,
 			scale_ * quality_ / 4,
-			max_it_,
+			max_it,
 			tol_,
 			size_,
 			clr_,
@@ -213,7 +236,7 @@ void FractalGenerator::generateFractal()
 				(i + 1) * step,
 				scale_,
 				quality_,
-				max_it_,
+				max_it,
 				tol_,
 				size_,
 				clr_,
@@ -250,7 +273,7 @@ void FractalGenerator::save(int quality)
 	int temp_quality = quality_;
 	int temp_max_it = max_it_;
 
-	max_it_ = max_it_ * 5;
+	max_it_ = max_it_ * iter_multiplier_;
 	setQuality(quality);
 	generateFractal();
 
