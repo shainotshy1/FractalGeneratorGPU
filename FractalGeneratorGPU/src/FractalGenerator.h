@@ -40,10 +40,6 @@ private:
 
 	int font1_size_;
 	ofTrueTypeFont font1_;
-	
-	ofxFloatSlider red_slider_;
-	ofxFloatSlider green_slider_;
-	ofxFloatSlider blue_slider_;
 
 	ofxIntSlider qual_slider_;
 	ofxFloatSlider iter_slider_;
