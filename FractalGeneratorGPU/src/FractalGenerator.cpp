@@ -4,6 +4,9 @@
 #include "cuda_memory_utils.cuh"
 #include <cmath>
 
+#include <windows.h>
+#include <Lmcons.h>
+
 FractalGenerator::FractalGenerator(bool gpu_enabled,
 	int num_threads,
 	int quality,
@@ -298,8 +301,25 @@ void FractalGenerator::save(int quality)
 	ss << std::put_time(std::localtime(&time), "%F_%T"); // ISO 8601 without timezone information.
 	auto s = ss.str();
 	std::replace(s.begin(), s.end(), ':', '-');
+	
+	boost::filesystem::path file_name;
+	std::string username_str;
+	TCHAR username[UNLEN + 1];
+	DWORD username_len = UNLEN + 1;
 
-	img_.save("mandelbrot_" + s + ".jpg", OF_IMAGE_QUALITY_BEST);
+	if (GetUserName((TCHAR*)username, &username_len)) {
+
+#ifndef UNICODE
+		username_str = username;
+#else
+		std::wstring wStr = username;
+		username_str = std::string(wStr.begin(), wStr.end());
+#endif
+		file_name.append("C:\\Users\\" + username_str + "\\Pictures\\FractalGens\\");
+	};
+	file_name.append("mandelbrot_" + s + ".jpg");
+
+	img_.save(file_name, OF_IMAGE_QUALITY_BEST);
 
 	setQuality(temp_quality);
 	max_it_ = temp_max_it;
