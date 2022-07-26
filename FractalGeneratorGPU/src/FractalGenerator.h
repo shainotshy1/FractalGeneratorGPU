@@ -30,7 +30,8 @@ private:
 	double pan_y_;
 
 	bool gpu_enabled_;
-	int num_threads_;
+	const bool valid_gpu_;
+	const int num_threads_;
 	double iter_multiplier_;
 
 	glm::vec3 clr_;

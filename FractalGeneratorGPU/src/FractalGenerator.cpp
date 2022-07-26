@@ -17,11 +17,14 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	max_it_(max_it),
 	tol_(tol),
 	zoom_scale_(zoom_scale),
-	shift_speed_(shift_speed)
+	shift_speed_(shift_speed),
+	num_threads_(num_threads),
+	valid_gpu_(gpu_enabled),
+	gpu_enabled_(gpu_enabled)
 {
 	int w = 400;
 	int h = 50;
-	iter_multiplier_ = 2;
+	iter_multiplier_ = 1;
 
 	qual_slider_.setup("Quality", quality_, 100, 2500, w, h);
 	iter_slider_.setup("Iterations", iter_multiplier_, 0, 10, w, h);
@@ -57,13 +60,10 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	x_shift_ = 0.0;
 	y_shift_ = 0.0;
 
-	color_filter_ = ofColor(200, 200, 255);
+	color_filter_ = ofColor(220, 50, 220);
 	color_enhancer_ = ofColor(148.75, 148.75, 148.75);
 	
 	font1_.load("font1.ttf", font1_size_);
-
-	num_threads_ = num_threads;
-	gpu_enabled_ = gpu_enabled;
 
 	setQuality(quality_);
 }
@@ -307,7 +307,7 @@ void FractalGenerator::save(int quality)
 
 void FractalGenerator::toggleGPU()
 {
-	gpu_enabled_ = !gpu_enabled_;
+	gpu_enabled_ = valid_gpu_ ? !gpu_enabled_ : false;
 }
 
 void FractalGenerator::cpuIterateColors(ofPixels& pixels,
