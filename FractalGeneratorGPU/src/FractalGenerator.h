@@ -15,13 +15,17 @@ private:
 	double* pixels_clr_h_;
 
 	int quality_;
+	int nodes_;
 	int tol_;
 
 	double max_it_;
+	double init_max_it_;
 	double scale_;
+	double init_scale_;
 
 	double zoom_scale_;
 	double zoom_scale0_;
+	double init_zoom_scale_;
 	double shift_speed_;
 	double x_shift_;
 	double y_shift_;
@@ -43,6 +47,7 @@ private:
 	ofTrueTypeFont font1_;
 
 	ofxIntSlider qual_slider_;
+	ofxIntSlider node_slider_;
 	ofxFloatSlider iter_slider_;
 
 	ofxColorSlider color_filter_;
@@ -54,6 +59,7 @@ public:
 		int num_threads,
 		int quality = 1000,
 		double max_it = 25,
+		int nodes = 1,
 		int tol = 5,
 		double scale = 1.0,
 		double zoom_scale = 1.01,
@@ -63,6 +69,7 @@ public:
 	~FractalGenerator();
 
 	//methods
+	void reset();
 	void run();
 	void zoom(int dir);
 	void shift(const glm::vec2 dir);
@@ -85,6 +92,7 @@ public:
 		double scale,
 		int quality,
 		int max_it,
+		int nodes,
 		double tol,
 		glm::vec2 size,
 		glm::vec3 clr,

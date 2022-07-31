@@ -49,6 +49,9 @@
     <ClCompile Include="src\FractalGenerator.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ComplexNumber.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -144,6 +147,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\FractalGenerator.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComplexNumber.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

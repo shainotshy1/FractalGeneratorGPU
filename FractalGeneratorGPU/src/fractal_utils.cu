@@ -7,6 +7,7 @@ void gpuIterateColors(double pan_x,
 	int num_pixels,
 	double mag_factor,
 	int max_it,
+	int nodes,
 	double tol,
 	glm::vec2 size,
 	glm::vec3 clr,
@@ -26,6 +27,7 @@ void gpuIterateColors(double pan_x,
 		pan_y,
 		mag_factor,
 		max_it,
+		nodes,
 		tol,
 		size,
 		clr,
@@ -39,6 +41,7 @@ __global__ void gpuIterateColorsKernel(double* pixels_clr,
 	double pan_y,
 	double mag_factor,
 	int max_it,
+	int nodes,
 	double tol,
 	glm::vec2 size,
 	glm::vec3 clr_scale,
@@ -56,15 +59,27 @@ __global__ void gpuIterateColorsKernel(double* pixels_clr,
 
 	double r_val = x; //real component of Z
 	double i_val = y; //imaginary component of Z
+	double temp_r_val = r_val;
+	double temp_i_val = i_val;
 	double val = 0;
 
 	for (int i = 0; i < max_it; i++) {
 
-		double temp_r_val = r_val * r_val - i_val * i_val + x;
-		double temp_i_val = 2 * r_val * i_val + y;
+		bool diverged = false;
+		
+		double r_val_c = r_val;
+		double i_val_c = i_val;
 
-		r_val = temp_r_val;
-		i_val = temp_i_val;
+		for (int k = 0; k < nodes; k++) {
+			temp_r_val = r_val * r_val_c - i_val * i_val_c;
+			temp_i_val = r_val * i_val_c + i_val * r_val_c;
+
+			r_val = temp_r_val;
+			i_val = temp_i_val;
+		}
+
+		r_val += x;
+		i_val += y;
 
 		if (r_val * r_val + i_val * i_val > tol * tol) {
 			val = i * 1.0 / max_it;

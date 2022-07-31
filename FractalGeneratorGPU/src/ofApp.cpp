@@ -33,8 +33,8 @@ void ofApp::setup() {
 
 	fractal_generator_ = new FractalGenerator(GPU_ENABLED,
 		NUM_THREADS,
-		500,  //quality in pixels _x_
-		150); //initial max iterations
+		500,
+		150);
 }
 //--------------------------------------------------------------
 

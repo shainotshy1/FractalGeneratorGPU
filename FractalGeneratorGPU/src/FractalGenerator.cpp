@@ -11,15 +11,20 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	int num_threads,
 	int quality,
 	double max_it,
+	int nodes,
 	int tol,
 	double scale,
 	double zoom_scale,
 	double shift_speed)
 	: quality_(quality),
+	nodes_(nodes),
 	scale_(scale),
+	init_scale_(scale),
 	max_it_(max_it),
+	init_max_it_(max_it),
 	tol_(tol),
 	zoom_scale_(zoom_scale),
+	init_zoom_scale_(zoom_scale),
 	shift_speed_(shift_speed),
 	num_threads_(num_threads),
 	valid_gpu_(gpu_enabled),
@@ -31,6 +36,7 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 	qual_slider_.setup("Quality", quality_, 100, 2500, w, h);
 	iter_slider_.setup("Iterations", iter_multiplier_, 0, 10, w, h);
+	node_slider_.setup("Nodes", nodes_, 0, 8, w, h);
 	
 	color_filter_.setup("Color Filter", 255, 0, 255, w / 2, h);
 	color_filter_.setDefaultHeight(h);
@@ -43,11 +49,13 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	font1_size_ = 30;
 	qual_slider_.loadFont("font1.ttf", font1_size_);
 	iter_slider_.loadFont("font1.ttf", font1_size_);
+	node_slider_.loadFont("font1.ttf", font1_size_);
 	color_filter_.loadFont("font1.ttf", 20);
 	color_enhancer_.loadFont("font1.ttf", 20);
 
 	qual_slider_.setFillColor(ofColor(50, 50, 50));
 	iter_slider_.setFillColor(ofColor(50, 50, 50));
+	node_slider_.setFillColor(ofColor(50, 50, 50));
 	color_filter_.setFillColor(ofColor(50, 50, 50));
 	color_enhancer_.setFillColor(ofColor(50, 50, 50));
 
@@ -55,6 +63,7 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 	qual_slider_.setBackgroundColor(background);
 	iter_slider_.setBackgroundColor(background);
+	node_slider_.setBackgroundColor(background);
 	color_filter_.setBackgroundColor(background);
 	color_enhancer_.setBackgroundColor(background);
 	qual_slider_.setDefaultTextPadding(10);
@@ -73,10 +82,20 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 
 FractalGenerator::~FractalGenerator()
 {
-	if (gpu_enabled_) {
+	if (valid_gpu_) {
 		free(pixels_clr_h_);
 		deleteOnDevice(pixels_clr_d_);
 	}
+}
+
+void FractalGenerator::reset()
+{
+	max_it_ = init_max_it_;
+	scale_ = init_scale_;
+	zoom_scale_ = init_zoom_scale_;
+	zoom_scale0_ = 1;
+	x_shift_ = 0.0;
+	y_shift_ = 0.0;
 }
 
 void FractalGenerator::run()
@@ -101,6 +120,12 @@ void FractalGenerator::run()
 	clr_enhance_ = glm::vec3(r, g, b);
 	
 	iter_multiplier_ = (double)iter_slider_;
+
+	int nodes = (int)node_slider_;
+	if (nodes != nodes_) {
+		nodes_ = nodes;
+		reset();
+	}
 
 	pan_x_ = 2.5 / scale_ + x_shift_;
 	pan_y_ = 2 / scale_ + y_shift_;
@@ -156,14 +181,18 @@ void FractalGenerator::displayGUI()
 
 	glm::vec2 pos(ofGetWindowWidth() - 100 - w, 200 - h);
 
-	qual_slider_.setPosition(pos.x, pos.y);
-	iter_slider_.setPosition(pos.x, pos.y + (slider_dist + h));
+	int divide = slider_dist + h;
 
-	color_filter_.setPosition(pos.x, pos.y + (slider_dist + h) * 2);
-	color_enhancer_.setPosition(pos.x + w / 2, pos.y + (slider_dist + h) * 2);
+	qual_slider_.setPosition(pos.x, pos.y);
+	iter_slider_.setPosition(pos.x, pos.y + divide);
+	node_slider_.setPosition(pos.x, pos.y + divide * 2);
+
+	color_filter_.setPosition(pos.x, pos.y + divide * 4);
+	color_enhancer_.setPosition(pos.x + w / 2, pos.y + divide * 4);
 
 	qual_slider_.draw();
 	iter_slider_.draw();
+	node_slider_.draw();
 
 	color_filter_.draw();
 	color_enhancer_.draw();
@@ -222,6 +251,7 @@ void FractalGenerator::generateFractal()
 			num_pixels,
 			scale_ * quality_ / 4,
 			max_it,
+			nodes_,
 			tol_,
 			size_,
 			clr_,
@@ -256,6 +286,7 @@ void FractalGenerator::generateFractal()
 				scale_,
 				quality_,
 				max_it,
+				nodes_,
 				tol_,
 				size_,
 				clr_,
@@ -338,6 +369,7 @@ void FractalGenerator::cpuIterateColors(ofPixels& pixels,
 	double scale,
 	int quality,
 	int max_it,
+	int nodes,
 	double tol,
 	glm::vec2 size,
 	glm::vec3 clr,
@@ -356,15 +388,27 @@ void FractalGenerator::cpuIterateColors(ofPixels& pixels,
 
 		double r_val = x; //real component of Z
 		double i_val = y; //imaginary component of Z
+		double temp_r_val = r_val;
+		double temp_i_val = i_val;
 		double val = 0;
 
 		for (int i = 0; i < max_it; i++) {
 
-			double temp_r_val = r_val * r_val - i_val * i_val + x;
-			double temp_i_val = 2 * r_val * i_val + y;
+			bool diverged = false;
 
-			r_val = temp_r_val;
-			i_val = temp_i_val;
+			double r_val_c = r_val;
+			double i_val_c = i_val;
+
+			for (int k = 0; k < nodes; k++) {
+				temp_r_val = r_val * r_val_c - i_val * i_val_c;
+				temp_i_val = r_val * i_val_c + i_val * r_val_c;
+
+				r_val = temp_r_val;
+				i_val = temp_i_val;
+			}
+
+			r_val += x;
+			i_val += y;
 
 			if (r_val * r_val + i_val * i_val > tol * tol) {
 				val = i * 1.0 / max_it;

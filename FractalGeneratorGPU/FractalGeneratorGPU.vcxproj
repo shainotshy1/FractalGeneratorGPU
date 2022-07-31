@@ -183,6 +183,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ComplexNumber.cpp" />
     <ClCompile Include="src\FractalGenerator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="..\..\..\..\Downloads\of_v0.11.2_vs2017_release\of_v0.11.2_vs2017_release\addons\ofxVectorGraphics\libs\CreEPS.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ComplexNumber.h" />
     <ClInclude Include="src\cuda_memory_utils.cuh" />
     <ClInclude Include="src\device_info.h" />
     <ClInclude Include="src\FractalGenerator.h" />
