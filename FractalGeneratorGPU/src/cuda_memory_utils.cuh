@@ -5,9 +5,9 @@
 #include <iostream>
 #include <stdio.h>
 
-#define gpuErrchk(ans){gpuAssert((ans),__FILE__,__LINE__);}
+#define gpu_errchk(ans){gpu_assert((ans),__FILE__,__LINE__);}
 
-inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true) {
+inline void gpu_assert(cudaError_t code, const char* file, int line, bool abort = true) {
 	if (code != cudaSuccess) {
 		fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
 		if (abort) exit(code);
@@ -15,19 +15,25 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 }
 
 template <typename T>
-void deleteOnDevice(T* v)
+void delete_on_device(T* v)
 {
-	gpuErrchk(cudaFree(v));
-}
-
-template <typename T1, typename T2>
-void allocateVectorOnDevice(T1 n, T2** v)
-{
-	gpuErrchk(cudaMalloc((void**)v, sizeof(T2) * n));
+	gpu_errchk(cudaFree(v));
 }
 
 template <typename T>
-void copyVectorToHost(int n, const T* src, T* dst)
+void allocate_on_device(T** v, int n = 1)
 {
-	gpuErrchk(cudaMemcpy(dst, src, sizeof(T) * n, cudaMemcpyDeviceToHost));
+	gpu_errchk(cudaMalloc((void**)v, sizeof(T) * n));
+}
+
+template <typename T>
+void copy_to_host(const T* src, T* dst, int n = 1)
+{
+	gpu_errchk(cudaMemcpy(dst, src, sizeof(T) * n, cudaMemcpyDeviceToHost));
+}
+
+template <typename T>
+void copy_to_device(const T* src, T* dst, int n = 1) 
+{
+	gpu_errchk(cudaMemcpy(dst, src, sizeof(T) * n, cudaMemcpyHostToDevice));
 }

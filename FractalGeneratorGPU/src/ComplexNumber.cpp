@@ -34,3 +34,35 @@ ComplexNumber operator*(const ComplexNumber& c1, const ComplexNumber& c2)
 
 	return ComplexNumber(a, b);
 }
+
+void ComplexNumber::operator*=(const ComplexNumber& rhs)
+{
+	double a{ a_ * rhs.a_ - b_ * rhs.b_ };
+	double b{ a_ * rhs.b_ + b_ * rhs.a_ };
+
+	a_ = a;
+	b_ = b;
+}
+
+ComplexNumber operator+(const ComplexNumber& c1, const ComplexNumber& c2)
+{
+	return ComplexNumber(c1.a_ + c2.a_, c1.b_ + c2.b_);
+}
+
+void ComplexNumber::operator+=(const ComplexNumber& rhs)
+{
+	a_ += rhs.a_;
+	b_ += rhs.b_;
+}
+
+ComplexNumber operator-(const ComplexNumber& c1, const ComplexNumber& c2)
+{
+	return ComplexNumber(c1.a_ - c2.a_, c1.b_ - c2.b_);
+}
+
+
+void ComplexNumber::operator-=(const ComplexNumber& rhs)
+{
+	a_ -= rhs.a_;
+	b_ -= rhs.b_;
+}

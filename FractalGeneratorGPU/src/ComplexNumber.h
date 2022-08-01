@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 struct ComplexNumber 
 {
@@ -15,8 +17,13 @@ struct ComplexNumber
 	~ComplexNumber();
 
 	//operator overloads
-	friend ComplexNumber operator*(const ComplexNumber& c1, const ComplexNumber& c2);
 	friend std::ostream& operator<<(std::ostream& os, const ComplexNumber& obj);
+	friend ComplexNumber operator*(const ComplexNumber& c1, const ComplexNumber& c2);
+	void operator*=(const ComplexNumber& rhs);
+	friend ComplexNumber operator+(const ComplexNumber& c1, const ComplexNumber& c2);
+	void operator+=(const ComplexNumber& rhs);
+	friend ComplexNumber operator-(const ComplexNumber& c1, const ComplexNumber& c2);
+	void operator-=(const ComplexNumber& rhs);
 
 	//methods
 	double get_sqr_mag();

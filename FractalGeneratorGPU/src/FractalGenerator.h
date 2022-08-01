@@ -80,7 +80,7 @@ public:
 	void setPixelColor(const int i, const int j, const ofColor clr);
 	void setBackground(const ofColor clr);
 	void generateFractal();
-	void setQuality(int quality);
+	void setQuality(int quality, bool init_allocated);
 	void save(int quality = 5000);
 	void toggleGPU();
 

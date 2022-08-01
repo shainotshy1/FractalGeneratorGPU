@@ -34,9 +34,9 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	int h = 50;
 	iter_multiplier_ = 1;
 
-	qual_slider_.setup("Quality", quality_, 100, 2500, w, h);
-	iter_slider_.setup("Iterations", iter_multiplier_, 0, 10, w, h);
-	node_slider_.setup("Nodes", nodes_, 0, 8, w, h);
+	qual_slider_.setup("Quality", quality_, 10, 2000, w, h);
+	iter_slider_.setup("Iterations", iter_multiplier_, 0, 25, w, h);
+	node_slider_.setup("Nodes", nodes_, 0, 10, w, h);
 	
 	color_filter_.setup("Color Filter", 255, 0, 255, w / 2, h);
 	color_filter_.setDefaultHeight(h);
@@ -77,14 +77,14 @@ FractalGenerator::FractalGenerator(bool gpu_enabled,
 	
 	font1_.load("font1.ttf", font1_size_);
 
-	setQuality(quality_);
+	setQuality(quality_, false);
 }
 
 FractalGenerator::~FractalGenerator()
 {
 	if (valid_gpu_) {
 		free(pixels_clr_h_);
-		deleteOnDevice(pixels_clr_d_);
+		delete_on_device(pixels_clr_d_);
 	}
 }
 
@@ -101,11 +101,7 @@ void FractalGenerator::reset()
 void FractalGenerator::run()
 {
 	if ((double)qual_slider_ != quality_) {
-		if (gpu_enabled_) {
-			free(pixels_clr_h_);
-			deleteOnDevice(pixels_clr_d_);
-		}
-		setQuality((double)qual_slider_);
+		setQuality((double)qual_slider_, true);
 	}
 
 	ofColor clr_picked = (ofColor)color_filter_;
@@ -258,7 +254,7 @@ void FractalGenerator::generateFractal()
 			clr_enhance_,
 			pixels_clr_d_);
 
-		copyVectorToHost(num_pixels * 3, pixels_clr_d_, pixels_clr_h_);
+		copy_to_host(pixels_clr_d_, pixels_clr_h_, num_pixels * 3);
 
 		for (int i = 0; i < num_pixels; i++) {
 
@@ -304,7 +300,7 @@ void FractalGenerator::generateFractal()
 	img_.update();
 }
 
-void FractalGenerator::setQuality(int quality)
+void FractalGenerator::setQuality(int quality, bool init_allocated)
 {
 	quality_ = quality;
 	size_ = glm::vec2(quality_, quality_);
@@ -313,8 +309,14 @@ void FractalGenerator::setQuality(int quality)
 
 	if (gpu_enabled_) {
 		int n = size_.x * size_.y * 3;
+		
+		if (init_allocated) {
+			free(pixels_clr_h_);
+			delete_on_device(pixels_clr_d_);
+		}
+		
 		pixels_clr_h_ = new double[n];
-		allocateVectorOnDevice(n, &pixels_clr_d_);
+		allocate_on_device(&pixels_clr_d_, n);
 	}
 }
 
@@ -324,7 +326,7 @@ void FractalGenerator::save(int quality)
 	int temp_max_it = max_it_;
 
 	max_it_ = max_it_ * iter_multiplier_;
-	setQuality(quality);
+	setQuality(quality, false);
 	generateFractal();
 
 	auto time = std::time(nullptr);
@@ -352,7 +354,7 @@ void FractalGenerator::save(int quality)
 
 	img_.save(file_name, OF_IMAGE_QUALITY_BEST);
 
-	setQuality(temp_quality);
+	setQuality(temp_quality, false);
 	max_it_ = temp_max_it;
 }
 
